@@ -1,7 +1,7 @@
 {
   "name": "KNmetabolicUTI",
   "short_name": "KNmetabolicUTI",
-  "description": "Bedside energy expenditure estimator (VCO2-based approximation).",
+  "description": "Estimativa metabólica com priorização de confiabilidade (Calorimetria indireta, DXA, BIA, VCO₂, exame físico).",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0b1c2c",
