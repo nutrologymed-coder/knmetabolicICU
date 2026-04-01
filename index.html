@@ -10,281 +10,296 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="KNmetabolicUTI">
   <link rel="apple-touch-icon" href="icon-192.png">
-
   <link rel="manifest" href="manifest.webmanifest">
 
   <style>
-    :root{--bg:#0b1c2c;--card:rgba(255,255,255,.06);--border:rgba(255,255,255,.10);--text:#ffffff;--muted:#cfcfcf;--gold:#d4af37;--ink:#0b1c2c;--pill:rgba(212,175,55,.18);--pillb:rgba(212,175,55,.35)}
+    :root{
+      --bg:#0b1c2c;--card:rgba(255,255,255,.06);--border:rgba(255,255,255,.10);
+      --text:#ffffff;--muted:#cfcfcf;--gold:#d4af37;--ink:#0b1c2c;
+      --pill:rgba(212,175,55,.18);--pillb:rgba(212,175,55,.35);
+    }
     *{box-sizing:border-box}
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background:var(--bg);color:var(--text);
+      padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
+    }
     .wrap{max-width:760px;margin:0 auto;padding:16px 0 28px}
     header{display:flex;align-items:center;gap:12px;margin:10px 0 14px}
-    .logo{width:44px;height:44px;border-radius:12px;border:1px solid var(--pillb);background:linear-gradient(180deg, rgba(212,175,55,.18), rgba(255,255,255,.02));display:grid;place-items:center;font-weight:800;color:var(--gold)}
+    .logo{width:44px;height:44px;border-radius:12px;border:1px solid var(--pillb);
+          background:linear-gradient(180deg,rgba(212,175,55,.18),rgba(255,255,255,.02));
+          display:grid;place-items:center;font-weight:800;color:var(--gold);flex-shrink:0}
+    .header-text{flex:1}
     h1{font-size:22px;margin:0;color:var(--gold)}
     .subtitle{margin:0;color:var(--muted);font-size:13px}
     .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin:12px 0}
+    .card-title{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.03em;margin-bottom:10px}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media (max-width:640px){.row{grid-template-columns:1fr}}
+    @media(max-width:640px){.row{grid-template-columns:1fr}}
     label{display:block;text-align:left;font-size:13px;color:var(--muted);margin:2px 0 6px}
-    input,select{width:100%;padding:12px;font-size:16px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.92);color:#0b1c2c;outline:none}
-    .section{margin-top:10px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.15)}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    input,select{
+      width:100%;padding:12px;font-size:16px;border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.92);
+      color:#0b1c2c;outline:none;
+    }
+    .section{margin-top:12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.15)}
+    .section-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px}
+    .badge{
+      display:inline-block;font-size:10px;padding:1px 7px;border-radius:999px;
+      background:rgba(155,232,159,.15);border:1px solid rgba(155,232,159,.4);
+      color:#9be89f;margin-left:6px;vertical-align:middle;
+    }
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
     button{appearance:none;border:none;border-radius:14px;padding:12px 16px;font-size:16px;cursor:pointer}
     .primary{background:var(--gold);color:var(--ink);font-weight:700}
     .ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
-    .pill{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--pill);border:1px solid var(--pillb);color:var(--gold);font-size:12px;margin-bottom:10px}
+    .lang-btn{
+      margin-left:auto;background:transparent;color:var(--muted);
+      border:1px solid var(--border);font-size:13px;padding:6px 12px;border-radius:999px;
+      cursor:pointer;
+    }
+    .pill{
+      display:inline-block;padding:2px 10px;border-radius:999px;
+      background:var(--pill);border:1px solid var(--pillb);color:var(--gold);
+      font-size:12px;margin-bottom:10px;
+    }
     .result{line-height:1.6;font-size:16px;min-height:62px}
     .kpi{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
-    @media (max-width:700px){.kpi{grid-template-columns:1fr}}
+    @media(max-width:700px){.kpi{grid-template-columns:1fr}}
     .box{border:1px solid var(--border);border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.04)}
     .t{font-size:12px;color:var(--muted)}
     .v{font-size:20px;font-weight:800;margin-top:4px}
     .u{font-size:12px;color:var(--muted);margin-top:2px}
     .small{font-size:12px;color:var(--muted);line-height:1.55}
-    .ok{color:#9be89f}.warn{color:#ffd48a}
+    .export-bar{display:none;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .export-bar button{font-size:13px;padding:8px 14px}
+    @media print{
+      .actions,.export-bar,.lang-btn{display:none!important}
+      body{background:#fff;color:#000;padding:0}
+      .card{border:1px solid #ccc;background:#fff}
+      .pill{background:#eee;border:1px solid #ccc;color:#333}
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="logo">KN</div>
+<div class="wrap">
+
+  <header>
+    <div class="logo">KN</div>
+    <div class="header-text">
+      <h1 data-i18n="appTitle">KNmetabolicUTI</h1>
+      <p class="subtitle" data-i18n="appSubtitle">Estimativa metabólica com priorização de confiabilidade</p>
+    </div>
+    <button class="lang-btn" id="langBtn" data-i18n="langBtn">English</button>
+  </header>
+
+  <!-- Patient Data -->
+  <div class="card">
+    <div class="card-title" data-i18n="cardDemographics">Dados do Paciente</div>
+    <div class="row">
       <div>
-        <h1>KNmetabolicUTI</h1>
-        <p class="subtitle">Estimativa metabólica com priorização de confiabilidade</p>
+        <label for="sex" data-i18n="sex">Sexo</label>
+        <select id="sex">
+          <option value="" data-i18n-opt="sexPlaceholder">Selecione</option>
+          <option value="M" data-i18n-opt="male">Masculino</option>
+          <option value="F" data-i18n-opt="female">Feminino</option>
+        </select>
       </div>
-    </header>
-
-    <div class="card">
-      <div class="row">
-        <div>
-          <label for="sex">Sexo</label>
-          <select id="sex">
-            <option value="">Selecione</option>
-            <option value="M">Masculino</option>
-            <option value="F">Feminino</option>
-          </select>
-        </div>
-        <div>
-          <label for="ht">Altura (cm)</label>
-          <input id="ht" inputmode="decimal" placeholder="ex.: 170" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label for="wt">Peso atual (kg)</label>
-          <input id="wt" inputmode="decimal" placeholder="ex.: 95" />
-        </div>
-        <div>
-          <label for="rq">RQ para método VCO₂ (opcional, padrão 0.85)</label>
-          <input id="rq" inputmode="decimal" placeholder="0.85" />
-        </div>
-      </div>
-
-      <div class="section">
-        <label><b>1) Calorimetria indireta (mais confiável)</b> – kcal/dia</label>
-        <input id="ic" inputmode="decimal" placeholder="ex.: 2050" />
-      </div>
-
-      <div class="section">
-        <label><b>2) DXA</b> – Massa livre de gordura (kg)</label>
-        <input id="dxa_ffm" inputmode="decimal" placeholder="ex.: 52" />
-      </div>
-
-      <div class="section">
-        <label><b>3) BIA</b> – Massa livre de gordura (kg)</label>
-        <input id="bia_ffm" inputmode="decimal" placeholder="ex.: 50" />
-      </div>
-
-      <div class="section">
-        <div class="row">
-          <div>
-            <label><b>4) VCO₂</b> – VE (L/min)</label>
-            <input id="ve" inputmode="decimal" placeholder="ex.: 7.7" />
-          </div>
-          <div>
-            <label>PaCO₂ (mmHg)</label>
-            <input id="paco2" inputmode="decimal" placeholder="ex.: 35" />
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="row">
-          <div>
-            <label><b>5) Exame físico</b> – faixa kcal/kg/dia</label>
-            <select id="exam_kcalkg">
-              <option value="">Selecione</option>
-              <option value="22">22 (fase aguda/sedado)</option>
-              <option value="25">25 (catabolismo moderado)</option>
-              <option value="30">30 (alto catabolismo/recuperação)</option>
-            </select>
-          </div>
-          <div>
-            <label>Peso para exame físico</label>
-            <select id="exam_weight_basis">
-              <option value="auto">Automático (ajustado se obeso)</option>
-              <option value="actual">Peso atual</option>
-              <option value="adjusted">Peso ajustado</option>
-              <option value="ideal">Peso ideal</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="primary" id="btn">Calcular</button>
-        <button class="ghost" id="clear">Limpar</button>
+      <div>
+        <label for="age" data-i18n="age">Idade (anos)</label>
+        <input id="age" inputmode="decimal" data-i18n-ph="agePlaceholder" placeholder="ex.: 45" />
       </div>
     </div>
-
-    <div class="card">
-      <div class="result" id="out"><span class="pill">Pronto</span><br>Preencha os dados e toque em <b>Calcular</b>.</div>
-      <div class="kpi" id="kpi" style="display:none">
-        <div class="box"><div class="t">Método recomendado</div><div class="v" id="v_method">—</div><div class="u">ordem de confiabilidade</div></div>
-        <div class="box"><div class="t">Meta energética</div><div class="v" id="v_ee">—</div><div class="u">kcal/dia</div></div>
-        <div class="box"><div class="t">Meta por peso de dose</div><div class="v" id="v_eekg">—</div><div class="u">kcal/kg/dia</div></div>
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label for="ht" data-i18n="height">Altura (cm)</label>
+        <input id="ht" inputmode="decimal" data-i18n-ph="heightPlaceholder" placeholder="ex.: 170" />
       </div>
-      <div class="small" style="margin-top:10px">
-        Prioridade usada: <span class="ok">Calorimetria indireta</span> → DXA (FFM/Cunningham) → BIA (FFM/Cunningham) → VCO₂ (Weir) → Exame físico (kcal/kg).<br>
-        Para obesidade (IMC ≥30), o app calcula peso ideal (Devine) e peso ajustado [PI + 0,25 × (PA−PI)] para evitar superalimentação em método por kg.
+      <div>
+        <label for="wt" data-i18n="weight">Peso atual (kg)</label>
+        <input id="wt" inputmode="decimal" data-i18n-ph="weightPlaceholder" placeholder="ex.: 95" />
       </div>
     </div>
   </div>
 
-<script>
-(function(){
-  const $ = (id)=>document.getElementById(id);
-  const round = (x)=>Math.round(x);
-  const round1 = (x)=>(Math.round(x*10)/10).toFixed(1);
-  const n = (v)=>{
-    const s = (v||"").toString().trim().replace(",", ".");
-    const x = Number(s);
-    return Number.isFinite(x) ? x : NaN;
-  };
+  <!-- Assessment Methods -->
+  <div class="card">
+    <div class="card-title" data-i18n="cardMethods">Métodos de Avaliação</div>
 
-  function ibwDevine(sex, hCm){
-    if(!Number.isFinite(hCm) || hCm < 120) return NaN;
-    const inches = hCm / 2.54;
-    const over5ft = Math.max(0, inches - 60);
-    return sex === "F" ? 45.5 + 2.3 * over5ft : 50 + 2.3 * over5ft;
-  }
+    <!-- 1. Indirect Calorimetry -->
+    <div class="section">
+      <div class="section-title">
+        <span data-i18n="method_ic">1) Calorimetria Indireta</span>
+        <span class="badge" data-i18n="icBadge">mais confiável</span>
+      </div>
+      <label for="ic" data-i18n="icLabel">Valor medido (kcal/dia)</label>
+      <input id="ic" inputmode="decimal" data-i18n-ph="icPlaceholder" placeholder="ex.: 2050" />
+    </div>
 
-  function collectMethods(data){
-    const methods = [];
+    <!-- 2. DXA -->
+    <div class="section">
+      <div class="section-title" data-i18n="method_dxa">2) DXA – Absorciometria de Raio-X de Dupla Energia</div>
+      <div class="row">
+        <div>
+          <label for="dxa_ffm" data-i18n="dxaFfmLabel">Massa livre de gordura (kg)</label>
+          <input id="dxa_ffm" inputmode="decimal" data-i18n-ph="dxaFfmPlaceholder" placeholder="ex.: 52" />
+        </div>
+        <div>
+          <label for="dxa_fm" data-i18n="dxaFmLabel">Massa gorda (kg) – opcional</label>
+          <input id="dxa_fm" inputmode="decimal" data-i18n-ph="dxaFmPlaceholder" placeholder="ex.: 28" />
+        </div>
+      </div>
+    </div>
 
-    if(Number.isFinite(data.ic) && data.ic > 0){
-      methods.push({key:"IC", label:"Calorimetria indireta", reliability:1, ee:data.ic, note:"medida direta"});
-    }
+    <!-- 3. BIA -->
+    <div class="section">
+      <div class="section-title" data-i18n="method_bia">3) BIA – Bioimpedância Elétrica</div>
+      <div class="row">
+        <div>
+          <label for="bia_ffm" data-i18n="biaFfmLabel">Massa livre de gordura (kg)</label>
+          <input id="bia_ffm" inputmode="decimal" data-i18n-ph="biaFfmPlaceholder" placeholder="ex.: 50" />
+        </div>
+        <div>
+          <label for="bia_fm" data-i18n="biaFmLabel">Massa gorda (kg) – opcional</label>
+          <input id="bia_fm" inputmode="decimal" data-i18n-ph="biaFmPlaceholder" placeholder="ex.: 30" />
+        </div>
+      </div>
+    </div>
 
-    if(Number.isFinite(data.dxaFfm) && data.dxaFfm > 0){
-      const ree = 500 + 22 * data.dxaFfm;
-      const ee = ree * 1.1;
-      methods.push({key:"DXA", label:"DXA (Cunningham)", reliability:2, ee, note:"FFM por DXA"});
-    }
+    <!-- 4. Skinfolds -->
+    <div class="section">
+      <div class="section-title" data-i18n="method_skinfolds">4) Pregas Cutâneas – Jackson-Pollock 3 pontos</div>
+      <p class="small" style="margin:0 0 8px" data-i18n="sfNote">Preencha os 3 pontos correspondentes ao sexo do paciente.</p>
 
-    if(Number.isFinite(data.biaFfm) && data.biaFfm > 0){
-      const ree = 500 + 22 * data.biaFfm;
-      const ee = ree * 1.1;
-      methods.push({key:"BIA", label:"BIA (Cunningham)", reliability:3, ee, note:"FFM por bioimpedância"});
-    }
+      <div id="sf_men">
+        <p class="small" style="margin:0 0 6px;color:var(--gold)" data-i18n="sfMen">Homens (peitoral, abdominal, coxa):</p>
+        <div class="row">
+          <div>
+            <label for="sf_chest" data-i18n="sfChest">Peitoral (mm)</label>
+            <input id="sf_chest" inputmode="decimal" data-i18n-ph="sfMmPlaceholder" placeholder="mm" />
+          </div>
+          <div>
+            <label for="sf_abdominal" data-i18n="sfAbdominal">Abdominal (mm)</label>
+            <input id="sf_abdominal" inputmode="decimal" data-i18n-ph="sfMmPlaceholder" placeholder="mm" />
+          </div>
+        </div>
+      </div>
 
-    if(Number.isFinite(data.ve) && Number.isFinite(data.paco2) && data.ve > 0 && data.paco2 > 0 && Number.isFinite(data.rq) && data.rq > 0.6 && data.rq < 1.2){
-      const vco2 = (data.ve * data.paco2 / 863) * 1000;
-      const ee = 1.44 * (3.941 * (vco2 / data.rq) + 1.106 * vco2);
-      methods.push({key:"VCO2", label:"VCO₂ (Weir)", reliability:4, ee, vco2, note:"estimativa ventilatória"});
-    }
+      <div id="sf_women" style="display:none">
+        <p class="small" style="margin:0 0 6px;color:var(--gold)" data-i18n="sfWomen">Mulheres (tricipital, suprailíaca, coxa):</p>
+        <div class="row">
+          <div>
+            <label for="sf_tricep" data-i18n="sfTricep">Tricipital (mm)</label>
+            <input id="sf_tricep" inputmode="decimal" data-i18n-ph="sfMmPlaceholder" placeholder="mm" />
+          </div>
+          <div>
+            <label for="sf_suprailiac" data-i18n="sfSuprailiac">Suprailíaca (mm)</label>
+            <input id="sf_suprailiac" inputmode="decimal" data-i18n-ph="sfMmPlaceholder" placeholder="mm" />
+          </div>
+        </div>
+      </div>
 
-    if(Number.isFinite(data.examKcalKg) && data.examKcalKg > 0 && Number.isFinite(data.examWeight) && data.examWeight > 0){
-      const ee = data.examKcalKg * data.examWeight;
-      methods.push({key:"EXAM", label:"Exame físico (kcal/kg)", reliability:5, ee, note:data.examWeightLabel});
-    }
+      <div style="margin-top:10px">
+        <label for="sf_thigh" data-i18n="sfThigh">Coxa (mm)</label>
+        <input id="sf_thigh" inputmode="decimal" data-i18n-ph="sfMmPlaceholder" placeholder="mm" />
+      </div>
+    </div>
 
-    return methods.sort((a,b)=>a.reliability-b.reliability);
-  }
+    <!-- 5. VCO₂ -->
+    <div class="section">
+      <div class="section-title" data-i18n="method_vco2">5) VCO₂ – Equação de Weir</div>
+      <div class="row">
+        <div>
+          <label for="ve" data-i18n="veLabel">VE (L/min)</label>
+          <input id="ve" inputmode="decimal" data-i18n-ph="vePlaceholder" placeholder="ex.: 7.7" />
+        </div>
+        <div>
+          <label for="paco2" data-i18n="paco2Label">PaCO₂ (mmHg)</label>
+          <input id="paco2" inputmode="decimal" data-i18n-ph="paco2Placeholder" placeholder="ex.: 35" />
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label for="rq" data-i18n="rq">QR para método VCO₂ (padrão 0,85)</label>
+        <input id="rq" inputmode="decimal" data-i18n-ph="rqPlaceholder" placeholder="0.85" />
+      </div>
+    </div>
 
-  function calc(){
-    const sex = $("sex").value;
-    const ht = n($("ht").value);
-    const wt = n($("wt").value);
-    const rq = $("rq").value.trim() === "" ? 0.85 : n($("rq").value);
+    <!-- 6. Physical Exam -->
+    <div class="section">
+      <div class="section-title" data-i18n="method_exam">6) Exame Físico – kcal/kg/dia</div>
+      <div class="row">
+        <div>
+          <label for="exam_kcalkg" data-i18n="examKcalkgLabel">Faixa kcal/kg/dia</label>
+          <select id="exam_kcalkg">
+            <option value="" data-i18n-opt="examSelectPlaceholder">Selecione</option>
+            <option value="22" data-i18n-opt="exam22">22 – fase aguda / sedado</option>
+            <option value="25" data-i18n-opt="exam25">25 – catabolismo moderado</option>
+            <option value="30" data-i18n-opt="exam30">30 – alto catabolismo / recuperação</option>
+          </select>
+        </div>
+        <div>
+          <label for="exam_weight_basis" data-i18n="examWeightBasisLabel">Peso utilizado no cálculo</label>
+          <select id="exam_weight_basis">
+            <option value="auto" data-i18n-opt="weightAuto">Automático (ajustado se obeso)</option>
+            <option value="actual" data-i18n-opt="weightActual">Peso atual</option>
+            <option value="adjusted" data-i18n-opt="weightAdjusted">Peso ajustado</option>
+            <option value="ideal" data-i18n-opt="weightIdeal">Peso ideal</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
-    const ibw = ibwDevine(sex || "M", ht);
-    const bmi = (Number.isFinite(wt) && Number.isFinite(ht) && ht>0) ? wt / Math.pow(ht/100,2) : NaN;
-    const obese = Number.isFinite(bmi) && bmi >= 30;
-    const adjusted = (Number.isFinite(ibw) && Number.isFinite(wt)) ? ibw + 0.25 * (wt - ibw) : NaN;
+    <div class="actions">
+      <button class="primary" id="btn" data-i18n="btnCalc">Calcular</button>
+      <button class="ghost" id="clear" data-i18n="btnClear">Limpar</button>
+    </div>
+  </div>
 
-    const basis = $("exam_weight_basis").value;
-    let examWeight = NaN;
-    let examWeightLabel = "";
-    if(basis === "actual") { examWeight = wt; examWeightLabel = "peso atual"; }
-    else if(basis === "ideal") { examWeight = ibw; examWeightLabel = "peso ideal"; }
-    else if(basis === "adjusted") { examWeight = adjusted; examWeightLabel = "peso ajustado"; }
-    else {
-      if(obese && Number.isFinite(adjusted)) { examWeight = adjusted; examWeightLabel = "automático: ajustado por obesidade"; }
-      else { examWeight = wt; examWeightLabel = "automático: peso atual"; }
-    }
+  <!-- Results -->
+  <div class="card">
+    <div class="result" id="out">
+      <span class="pill" data-i18n="ready">Pronto</span><br>
+      <span data-i18n="readyMsg">Preencha os dados e toque em <b>Calcular</b>.</span>
+    </div>
 
-    const data = {
-      ic: n($("ic").value),
-      dxaFfm: n($("dxa_ffm").value),
-      biaFfm: n($("bia_ffm").value),
-      ve: n($("ve").value),
-      paco2: n($("paco2").value),
-      rq,
-      examKcalKg: n($("exam_kcalkg").value),
-      examWeight,
-      examWeightLabel
-    };
+    <div class="kpi" id="kpi" style="display:none">
+      <div class="box">
+        <div class="t" id="kpi_method_label">Método recomendado</div>
+        <div class="v" id="v_method">—</div>
+        <div class="u" id="kpi_method_unit">ordem de confiabilidade</div>
+      </div>
+      <div class="box">
+        <div class="t" id="kpi_ee_label">Meta energética</div>
+        <div class="v" id="v_ee">—</div>
+        <div class="u" id="kpi_ee_unit">kcal/dia</div>
+      </div>
+      <div class="box">
+        <div class="t" id="kpi_eekg_label">Meta por kg</div>
+        <div class="v" id="v_eekg">—</div>
+        <div class="u" id="kpi_eekg_unit">kcal/kg/dia</div>
+      </div>
+    </div>
 
-    const methods = collectMethods(data);
-    const out = $("out");
-    const kpi = $("kpi");
+    <div class="export-bar actions" id="exportBar">
+      <button class="ghost" id="btnExportPDF" data-i18n="btnExportPDF">📄 PDF</button>
+      <button class="ghost" id="btnExportCSV" data-i18n="btnExportCSV">📊 CSV</button>
+      <button class="ghost" id="btnExportJSON" data-i18n="btnExportJSON">{ } JSON</button>
+    </div>
 
-    if(methods.length === 0){
-      kpi.style.display = "none";
-      out.innerHTML = '<span class="pill">Sem dados</span><br>Adicione ao menos um método (IC, DXA, BIA, VCO₂ ou exame físico).';
-      return;
-    }
+    <div class="small" style="margin-top:10px" data-i18n="priorityNote">
+      Prioridade: Calorimetria indireta → DXA (Cunningham) → BIA (Cunningham) → Pregas (J-P/Cunningham) → VCO₂ (Weir) → Exame físico.
+    </div>
+    <div class="small" style="margin-top:4px" data-i18n="obesityNote">
+      Obesidade (IMC ≥ 30): peso ideal via Devine, peso ajustado = PI + 0,25 × (PA − PI).
+    </div>
+  </div>
 
-    const best = methods[0];
-    const wtDose = (obese && Number.isFinite(adjusted)) ? adjusted : wt;
-    const eekg = Number.isFinite(wtDose) && wtDose>0 ? best.ee / wtDose : NaN;
+</div>
 
-    const rows = methods.map((m, i)=>`${i+1}. <b>${m.label}</b>: ${round(m.ee)} kcal/dia <span class="small">(${m.note})</span>`).join("<br>");
-    const aux = [
-      Number.isFinite(bmi) ? `IMC: <b>${round1(bmi)}</b>${obese ? ' (obesidade)' : ''}` : null,
-      Number.isFinite(ibw) ? `Peso ideal: <b>${round1(ibw)} kg</b>` : null,
-      Number.isFinite(adjusted) ? `Peso ajustado: <b>${round1(adjusted)} kg</b>` : null
-    ].filter(Boolean).join(" • ");
-
-    out.innerHTML =
-      '<span class="pill">Plano metabólico</span><br>' +
-      `Método priorizado: <b>${best.label}</b> (nível ${best.reliability} de confiabilidade)<br>` +
-      `Meta sugerida: <b>${round(best.ee)} kcal/dia</b><br><br>` +
-      `<b>Todos os métodos disponíveis:</b><br>${rows}<br><br>` +
-      `<span class="small">${aux}</span>`;
-
-    $("v_method").textContent = best.key;
-    $("v_ee").textContent = round(best.ee);
-    $("v_eekg").textContent = Number.isFinite(eekg) ? round1(eekg) : "—";
-    kpi.style.display = "grid";
-  }
-
-  function clearAll(){
-    ["sex","ht","wt","rq","ic","dxa_ffm","bia_ffm","ve","paco2","exam_kcalkg"].forEach(id=>$(id).value="");
-    $("exam_weight_basis").value = "auto";
-    $("kpi").style.display = "none";
-    $("out").innerHTML = '<span class="pill">Pronto</span><br>Preencha os dados e toque em <b>Calcular</b>.';
-  }
-
-  $("btn").addEventListener("click", calc);
-  $("clear").addEventListener("click", clearAll);
-
-  if("serviceWorker" in navigator){
-    window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
-  }
-})();
-</script>
+<script src="js/translations.js"></script>
+<script src="js/methods.js"></script>
+<script src="js/export.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

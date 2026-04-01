@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>KNmetabolicUTI – Test Suite</title>
+  <style>
+    body{font-family:monospace;background:#0b1c2c;color:#fff;padding:20px}
+    h1{color:#d4af37;margin-bottom:4px}
+    h2{color:#9be89f;margin-top:20px;margin-bottom:8px;font-size:14px}
+    .pass{color:#9be89f}
+    .fail{color:#ff7b7b}
+    .info{color:#cfcfcf;font-size:12px;margin-left:16px}
+    pre{background:rgba(255,255,255,.06);padding:8px;border-radius:8px;font-size:11px;overflow-x:auto}
+    #summary{margin-top:20px;font-size:15px}
+  </style>
+</head>
+<body>
+  <h1>KNmetabolicUTI – Automated Tests</h1>
+  <p style="color:#cfcfcf;font-size:13px">Open this file via a local HTTP server (e.g. <code>python3 -m http.server</code> from the repo root) for the scripts to load correctly.</p>
+  <div id="results"></div>
+  <div id="summary"></div>
+
+<script src="../js/translations.js"></script>
+<script src="../js/methods.js"></script>
+<script>
+(function(){
+  const results = document.getElementById("results");
+  const summary = document.getElementById("summary");
+  let passed = 0, failed = 0;
+
+  function approx(a, b, tol) {
+    tol = tol || 0.5;
+    return Math.abs(a - b) <= tol;
+  }
+
+  function assert(condition, name, info) {
+    const ok = !!condition;
+    ok ? passed++ : failed++;
+    const cls = ok ? "pass" : "fail";
+    const icon = ok ? "✔" : "✘";
+    const div = document.createElement("div");
+    div.innerHTML = `<span class="${cls}">${icon} ${name}</span>` +
+      (info ? `<div class="info">${info}</div>` : "");
+    results.appendChild(div);
+  }
+
+  function section(title) {
+    const h = document.createElement("h2");
+    h.textContent = title;
+    results.appendChild(h);
+  }
+
+  const M = window.Methods;
+  const lang = "pt";
+
+  // ── IBW Devine ──────────────────────────────────────────────────────────
+  section("IBW – Devine Formula");
+  {
+    const ibwM170 = M.ibwDevine("M", 170);
+    // 170cm = 66.93in → over5ft = 6.93 → 50 + 2.3*6.93 ≈ 65.94
+    assert(approx(ibwM170, 65.9, 0.5), "Male 170 cm → ~65.9 kg", `Got ${ibwM170.toFixed(2)}`);
+
+    const ibwF160 = M.ibwDevine("F", 160);
+    // 160cm = 62.99in → over5ft = 2.99 → 45.5 + 2.3*2.99 ≈ 52.38
+    assert(approx(ibwF160, 52.4, 0.5), "Female 160 cm → ~52.4 kg", `Got ${ibwF160.toFixed(2)}`);
+
+    assert(isNaN(M.ibwDevine("M", 50)), "Height 50 cm → NaN (too short)");
+    assert(isNaN(M.ibwDevine("M", NaN)), "Height NaN → NaN");
+  }
+
+  // ── Indirect Calorimetry ─────────────────────────────────────────────────
+  section("Method 1 – Indirect Calorimetry");
+  {
+    const r = M.calcIC(2000, lang);
+    assert(r !== null, "IC 2000 kcal/day returns result");
+    assert(r.ee === 2000, "IC ee equals input", `Got ${r && r.ee}`);
+    assert(r.reliability === 1, "IC has reliability 1");
+    assert(r.composition === null, "IC has no composition data");
+    assert(M.calcIC(0, lang) === null, "IC 0 → null");
+    assert(M.calcIC(-100, lang) === null, "IC negative → null");
+    assert(M.calcIC(NaN, lang) === null, "IC NaN → null");
+  }
+
+  // ── DXA ──────────────────────────────────────────────────────────────────
+  section("Method 2 – DXA (Cunningham)");
+  {
+    // REE = 500 + 22*52 = 1644; EE = 1644*1.1 = 1808.4
+    const r = M.calcDXA(52, 28, 80, lang);
+    assert(r !== null, "DXA with FFM=52 returns result");
+    assert(approx(r.ee, 1808.4, 1), "DXA EE ≈ 1808 kcal/day", `Got ${r && r.ee.toFixed(1)}`);
+    assert(r.reliability === 2, "DXA has reliability 2");
+    const comp = r.composition;
+    assert(comp !== null, "DXA provides composition");
+    assert(approx(comp.ffm, 52, 0.01), "DXA FFM = 52", `Got ${comp && comp.ffm}`);
+    assert(approx(comp.fatMass, 28, 0.01), "DXA fat mass = 28 (provided)", `Got ${comp && comp.fatMass}`);
+    assert(approx(comp.fatPct, 35, 0.1), "DXA fat% = 35 (28/80)", `Got ${comp && comp.fatPct.toFixed(2)}`);
+
+    // Without explicit FM, infer from weight - FFM
+    const r2 = M.calcDXA(52, NaN, 80, lang);
+    assert(r2 !== null, "DXA without explicit FM works");
+    assert(approx(r2.composition.fatMass, 28, 0.01), "DXA inferred fat mass = 28", `Got ${r2 && r2.composition.fatMass}`);
+
+    assert(M.calcDXA(0, 28, 80, lang) === null, "DXA FFM=0 → null");
+    assert(M.calcDXA(NaN, 28, 80, lang) === null, "DXA FFM=NaN → null");
+  }
+
+  // ── BIA ───────────────────────────────────────────────────────────────────
+  section("Method 3 – BIA (Cunningham)");
+  {
+    // REE = 500 + 22*50 = 1600; EE = 1600*1.1 = 1760
+    const r = M.calcBIA(50, 30, 80, lang);
+    assert(r !== null, "BIA with FFM=50 returns result");
+    assert(approx(r.ee, 1760, 1), "BIA EE ≈ 1760 kcal/day", `Got ${r && r.ee.toFixed(1)}`);
+    assert(r.reliability === 3, "BIA has reliability 3");
+    assert(r.composition !== null, "BIA provides composition");
+    assert(M.calcBIA(0, 30, 80, lang) === null, "BIA FFM=0 → null");
+  }
+
+  // ── Skinfolds (Jackson-Pollock) ───────────────────────────────────────────
+  section("Method 4 – Skinfolds (Jackson-Pollock 3-site)");
+  {
+    // Male, 30 years, chest=12, abdominal=15, thigh=10, weight=80 kg
+    // sum=37; density = 1.10938 - 0.0008267*37 + 0.0000016*37^2 - 0.0002574*30
+    // = 1.10938 - 0.030588 + 0.002191 - 0.007722 = 1.074261
+    // %fat = 495/1.074261 - 450 = 460.82 - 450 = 10.82
+    const rM = M.calcSkinfolds("M", 30, {chest:12, abdominal:15, thigh:10}, 80, lang);
+    assert(rM !== null, "Male skinfolds returns result");
+    assert(approx(rM.composition.fatPct, 10.82, 1), "Male fat% ≈ 10.8%", `Got ${rM && rM.composition.fatPct.toFixed(2)}`);
+    assert(rM.reliability === 4, "Skinfolds has reliability 4");
+    assert(rM.composition.ffm > 0, "Skinfolds FFM > 0");
+
+    // Female, 25 years, tricep=16, suprailiac=14, thigh=18, weight=65 kg
+    const rF = M.calcSkinfolds("F", 25, {tricep:16, suprailiac:14, thigh:18}, 65, lang);
+    assert(rF !== null, "Female skinfolds returns result");
+    assert(rF.composition.fatPct > 0 && rF.composition.fatPct < 60, "Female fat% in plausible range",
+      `Got ${rF && rF.composition.fatPct.toFixed(2)}`);
+
+    // Missing sites
+    assert(M.calcSkinfolds("M", 30, {chest:12, abdominal:15}, 80, lang) === null,
+      "Missing thigh → null");
+    assert(M.calcSkinfolds("F", 25, {tricep:16, thigh:18}, 65, lang) === null,
+      "Missing suprailiac → null");
+
+    // Missing sex
+    assert(M.calcSkinfolds("", 30, {chest:12, abdominal:15, thigh:10}, 80, lang) === null,
+      "Unknown sex → null");
+
+    // Missing age
+    assert(M.calcSkinfolds("M", NaN, {chest:12, abdominal:15, thigh:10}, 80, lang) === null,
+      "Missing age → null");
+  }
+
+  // ── VCO₂ / Weir ──────────────────────────────────────────────────────────
+  section("Method 5 – VCO₂ (Weir)");
+  {
+    // VCO₂ = (7.7 * 35 / 863) * 1000 ≈ 312.28 mL/min
+    // VO₂ = 312.28 / 0.85 ≈ 367.39
+    // EE = 1.44 * (3.941*367.39 + 1.106*312.28) = 1.44*(1447.21+345.58) = 1.44*1792.79 = 2581.62
+    const r = M.calcVCO2(7.7, 35, 0.85, lang);
+    assert(r !== null, "VCO₂ with valid inputs returns result");
+    assert(approx(r.ee, 2581, 5), "VCO₂ EE ≈ 2581 kcal/day", `Got ${r && r.ee.toFixed(1)}`);
+    assert(r.reliability === 5, "VCO₂ has reliability 5");
+    assert(r.composition === null, "VCO₂ has no composition data");
+
+    assert(M.calcVCO2(7.7, 35, 0.5, lang) === null, "RQ 0.5 (out of range) → null");
+    assert(M.calcVCO2(7.7, 35, 1.3, lang) === null, "RQ 1.3 (out of range) → null");
+    assert(M.calcVCO2(0, 35, 0.85, lang) === null, "VE=0 → null");
+  }
+
+  // ── Physical Exam ─────────────────────────────────────────────────────────
+  section("Method 6 – Physical Exam (kcal/kg/day)");
+  {
+    const r = M.calcExam(25, 70, "peso atual", lang);
+    assert(r !== null, "Exam 25 kcal/kg × 70 kg returns result");
+    assert(r.ee === 1750, "Exam EE = 1750 kcal/day", `Got ${r && r.ee}`);
+    assert(r.reliability === 6, "Exam has reliability 6");
+    assert(r.composition === null, "Exam has no composition data");
+
+    assert(M.calcExam(25, 0, "label", lang) === null, "Exam weight=0 → null");
+    assert(M.calcExam(0, 70, "label", lang) === null, "Exam kcalKg=0 → null");
+  }
+
+  // ── collectMethods priority ───────────────────────────────────────────────
+  section("collectMethods – Priority Ordering");
+  {
+    const data = {
+      sex: "M", age: 40, height: 175, weight: 80,
+      ic: 2100,
+      dxaFfm: 55, dxaFm: NaN,
+      biaFfm: 53, biaFm: NaN,
+      skinfolds: {chest:10, abdominal:14, tricep:NaN, suprailiac:NaN, thigh:12},
+      ve: 8, paco2: 38, rq: 0.85,
+      examKcalKg: 25, examWeight: 80, examWeightLabel: "peso atual",
+    };
+    const methods = M.collectMethods(data, lang);
+    assert(methods.length >= 4, `At least 4 methods available (got ${methods.length})`);
+    assert(methods[0].key === "IC", "IC is first (most reliable)", `Got ${methods[0] && methods[0].key}`);
+
+    // Without IC, DXA should be first
+    const data2 = Object.assign({}, data, {ic: NaN});
+    const methods2 = M.collectMethods(data2, lang);
+    assert(methods2[0].key === "DXA", "Without IC, DXA is first", `Got ${methods2[0] && methods2[0].key}`);
+  }
+
+  // ── Physiological profiles ────────────────────────────────────────────────
+  section("Physiological Profiles");
+  {
+    // Obese patient: BMI > 30
+    const bmi = 95 / Math.pow(1.7, 2);
+    assert(bmi >= 30, `Obese patient BMI=${bmi.toFixed(1)} ≥ 30`);
+
+    // Elderly female
+    const r = M.calcSkinfolds("F", 70, {tricep:22, suprailiac:20, thigh:25}, 60, lang);
+    assert(r !== null, "Elderly female skinfolds computes", `EE=${r && Math.round(r.ee)}`);
+    assert(r.composition.fatPct > 0, "Elderly female has positive fat%");
+
+    // Young male athlete (low body fat)
+    const rA = M.calcSkinfolds("M", 22, {chest:6, abdominal:8, thigh:9}, 75, lang);
+    assert(rA !== null, "Young male athlete skinfolds computes");
+    assert(rA.composition.fatPct < 15, `Athlete fat% < 15% (got ${rA && rA.composition.fatPct.toFixed(1)}%)`);
+
+    // Very high DXA FFM (large athlete)
+    const rD = M.calcDXA(75, NaN, 90, lang);
+    assert(rD !== null, "Large athlete DXA computes");
+    // REE = 500 + 22*75 = 2150; EE = 2150*1.1 = 2365
+    assert(approx(rD.ee, 2365, 5), "Large athlete DXA EE ≈ 2365", `Got ${rD && rD.ee.toFixed(1)}`);
+
+    // Language EN
+    const rEN = M.calcIC(1800, "en");
+    assert(rEN !== null, "IC works in English mode");
+    assert(rEN.ee === 1800, "IC EE correct in EN mode");
+  }
+
+  // ── Summary ────────────────────────────────────────────────────────────────
+  summary.innerHTML = `<hr style="border-color:rgba(255,255,255,.1)">
+    <b class="${failed === 0 ? 'pass' : 'fail'}">
+      ${passed + failed} tests: ${passed} passed, ${failed} failed
+    </b>`;
+})();
+</script>
+</body>
+</html>
