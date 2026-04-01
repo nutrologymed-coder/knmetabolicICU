@@ -34,6 +34,8 @@
     .ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
     .pill{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--pill);border:1px solid var(--pillb);color:var(--gold);font-size:12px;margin-bottom:10px}
     .result{line-height:1.6;font-size:16px;min-height:62px}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    @media (max-width:640px){.row3{grid-template-columns:1fr}}
     .kpi{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
     @media (max-width:700px){.kpi{grid-template-columns:1fr}}
     .box{border:1px solid var(--border);border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.04)}
@@ -76,9 +78,17 @@
           <input id="wt" inputmode="decimal" placeholder="ex.: 95" />
         </div>
         <div>
+          <label for="age">Idade (anos)</label>
+          <input id="age" inputmode="decimal" placeholder="ex.: 65" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
           <label for="rq">RQ para método VCO₂ (opcional, padrão 0.85)</label>
           <input id="rq" inputmode="decimal" placeholder="0.85" />
         </div>
+        <div></div>
       </div>
 
       <div class="section">
@@ -110,9 +120,29 @@
       </div>
 
       <div class="section">
+        <label><b>5–7) Equações preditivas</b> – Penn State / Harris-Benedict / Mifflin-St Jeor</label>
         <div class="row">
           <div>
-            <label><b>5) Exame físico</b> – faixa kcal/kg/dia</label>
+            <label for="tmax">T máxima 24h (°C) – Penn State</label>
+            <input id="tmax" inputmode="decimal" placeholder="ex.: 38.5" />
+          </div>
+          <div>
+            <label for="stress_factor">Fator de estresse – Harris-Benedict / Mifflin</label>
+            <select id="stress_factor">
+              <option value="">Selecione</option>
+              <option value="1.1">1,1 – Fase aguda / sedado</option>
+              <option value="1.25">1,25 – Estresse moderado</option>
+              <option value="1.35">1,35 – Sepse / trauma grave</option>
+              <option value="1.5">1,5 – Trauma múltiplo / queimaduras</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="row">
+          <div>
+            <label><b>8) Exame físico</b> – faixa kcal/kg/dia</label>
             <select id="exam_kcalkg">
               <option value="">Selecione</option>
               <option value="22">22 (fase aguda/sedado)</option>
@@ -146,8 +176,8 @@
         <div class="box"><div class="t">Meta por peso de dose</div><div class="v" id="v_eekg">—</div><div class="u">kcal/kg/dia</div></div>
       </div>
       <div class="small" style="margin-top:10px">
-        Prioridade usada: <span class="ok">Calorimetria indireta</span> → DXA (FFM/Cunningham) → BIA (FFM/Cunningham) → VCO₂ (Weir) → Exame físico (kcal/kg).<br>
-        Para obesidade (IMC ≥30), o app calcula peso ideal (Devine) e peso ajustado [PI + 0,25 × (PA−PI)] para evitar superalimentação em método por kg.
+        Prioridade: <span class="ok">Calorimetria indireta</span> → DXA (Cunningham) → BIA (Cunningham) → VCO₂ (Weir) → Penn State (UTI/VM) → Harris-Benedict → Mifflin-St Jeor → Exame físico (kcal/kg).<br>
+        Penn State 2003 para IMC&lt;30; Penn State 2010 (modificado) para obesidade (IMC≥30). Harris-Benedict e Mifflin-St Jeor requerem fator de estresse. Para obesidade (IMC≥30), peso ajustado [PI + 0,25 × (PA−PI)] é usado para cálculo por kg.
       </div>
     </div>
   </div>
@@ -169,6 +199,14 @@
     const over5ft = Math.max(0, inches - 60);
     return sex === "F" ? 45.5 + 2.3 * over5ft : 50 + 2.3 * over5ft;
   }
+
+  function harrisBenedictREE(sex, wt, ht, age){
+    return sex === "M"
+      ? 66.47 + 13.75 * wt + 5.003 * ht - 6.755 * age
+      : 655.1  +  9.563 * wt + 1.850 * ht - 4.676 * age;
+  }
+
+  const TMAX_MIN = 30, TMAX_MAX = 45;
 
   function collectMethods(data){
     const methods = [];
@@ -195,9 +233,36 @@
       methods.push({key:"VCO2", label:"VCO₂ (Weir)", reliability:4, ee, vco2, note:"estimativa ventilatória"});
     }
 
+    const hasDemog = data.sex && Number.isFinite(data.wt) && data.wt > 0 && Number.isFinite(data.ht) && data.ht > 0 && Number.isFinite(data.age) && data.age > 0;
+
+    if(hasDemog && Number.isFinite(data.ve) && data.ve > 0 && Number.isFinite(data.tmax) && data.tmax > TMAX_MIN && data.tmax < TMAX_MAX){
+      const hbBase = harrisBenedictREE(data.sex, data.wt, data.ht, data.age);
+      let psuEe, psuLabel;
+      if(data.obese){
+        psuEe  = hbBase * 0.71 + data.ve * 64 + data.tmax * 85 - 3085;
+        psuLabel = "Penn State 2010 (obeso)";
+      } else {
+        psuEe  = hbBase * 1.1  + data.ve * 32 + data.tmax * 140 - 5340;
+        psuLabel = "Penn State 2003";
+      }
+      if(psuEe > 0){
+        methods.push({key:"PSU", label:psuLabel, reliability:5, ee:psuEe, note:"UTI/VM · VE + Tmax"});
+      }
+    }
+
+    if(hasDemog && Number.isFinite(data.stressFactor) && data.stressFactor > 0){
+      const hbRee = harrisBenedictREE(data.sex, data.wt, data.ht, data.age);
+      methods.push({key:"HB", label:"Harris-Benedict", reliability:6, ee:hbRee * data.stressFactor, note:`fator ${data.stressFactor}`});
+
+      const msjRee = data.sex === "M"
+        ? 10 * data.wt + 6.25 * data.ht - 5 * data.age + 5
+        : 10 * data.wt + 6.25 * data.ht - 5 * data.age - 161;
+      methods.push({key:"MSJ", label:"Mifflin-St Jeor", reliability:7, ee:msjRee * data.stressFactor, note:`fator ${data.stressFactor}`});
+    }
+
     if(Number.isFinite(data.examKcalKg) && data.examKcalKg > 0 && Number.isFinite(data.examWeight) && data.examWeight > 0){
       const ee = data.examKcalKg * data.examWeight;
-      methods.push({key:"EXAM", label:"Exame físico (kcal/kg)", reliability:5, ee, note:data.examWeightLabel});
+      methods.push({key:"EXAM", label:"Exame físico (kcal/kg)", reliability:8, ee, note:data.examWeightLabel});
     }
 
     return methods.sort((a,b)=>a.reliability-b.reliability);
@@ -234,7 +299,14 @@
       rq,
       examKcalKg: n($("exam_kcalkg").value),
       examWeight,
-      examWeightLabel
+      examWeightLabel,
+      sex,
+      wt,
+      ht,
+      obese,
+      age: n($("age").value),
+      tmax: n($("tmax").value),
+      stressFactor: n($("stress_factor").value)
     };
 
     const methods = collectMethods(data);
@@ -243,7 +315,7 @@
 
     if(methods.length === 0){
       kpi.style.display = "none";
-      out.innerHTML = '<span class="pill">Sem dados</span><br>Adicione ao menos um método (IC, DXA, BIA, VCO₂ ou exame físico).';
+      out.innerHTML = '<span class="pill">Sem dados</span><br>Adicione ao menos um método (IC, DXA, BIA, VCO₂, Penn State, Harris-Benedict, Mifflin-St Jeor ou exame físico).';
       return;
     }
 
@@ -272,8 +344,9 @@
   }
 
   function clearAll(){
-    ["sex","ht","wt","rq","ic","dxa_ffm","bia_ffm","ve","paco2","exam_kcalkg"].forEach(id=>$(id).value="");
+    ["sex","ht","wt","age","rq","ic","dxa_ffm","bia_ffm","ve","paco2","tmax","exam_kcalkg"].forEach(id=>$(id).value="");
     $("exam_weight_basis").value = "auto";
+    $("stress_factor").value = "";
     $("kpi").style.display = "none";
     $("out").innerHTML = '<span class="pill">Pronto</span><br>Preencha os dados e toque em <b>Calcular</b>.';
   }
