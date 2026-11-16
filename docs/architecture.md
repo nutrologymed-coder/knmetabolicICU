@@ -17,8 +17,8 @@ Navegador (PWA estática, offline) ──► Cloudflare Pages (dist/ + _headers:
 | Ambiente | Front | Banco | Deploy |
 |---|---|---|---|
 | local | `npm run build && npm run preview` | `supabase start` | manual |
-| preview (PR) | Cloudflare Pages branch preview | projeto *staging* | `preview.yml` |
-| produção | Cloudflare Pages `main` | projeto *prod* (PITR ligado) | `deploy.yml` com aprovação manual |
+| preview (PR) | Cloudflare Pages branch preview | projeto *staging* | Cloudflare Git integration |
+| produção | Cloudflare Pages `main` | projeto *prod* (PITR ligado) | Cloudflare Git integration (branch `main`) |
 
 Projetos Supabase de staging e prod são **separados**; nunca apontar preview para prod.
 

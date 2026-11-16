@@ -1,21 +1,18 @@
 # Configuração de nuvem (ações que exigem humano)
 
-O repositório já contém workflows, `_headers`, migrações e testes. Estes passos **dependem de credenciais/decisões suas** e não foram executados.
+O repositório contém **um único workflow** (`ci.yml`, só em PRs), `_headers`, migrações e testes. Política: **uso mínimo de GitHub Actions**; deploy e previews ficam com o Cloudflare Pages (Git integration), sem minutos de Actions. Estes passos **dependem de credenciais/decisões suas** e não foram executados.
 
 ## 1. GitHub
-1. Settings → Branches → regra para `main`: exigir PR, status checks `test` e `database` (CI) e `analyze` (CodeQL), review de Code Owners, histórico linear, bloquear force-push.
-2. Settings → Code security: habilitar Dependabot alerts/updates, secret scanning e push protection, code scanning.
-3. Settings → Environments → criar `production` com **required reviewers**.
-4. Settings → Actions → General: permissões padrão do `GITHUB_TOKEN` = somente leitura; exigir aprovação para workflows de fork.
+1. Settings → Branches → regra para `main`: exigir PR, status check `check` (CI), review de Code Owners, histórico linear, bloquear force-push.
+2. Settings → Code security: habilitar Dependabot **alerts** (sem workflow), secret scanning, push protection e CodeQL em *default setup* (opcional; agendado pelo GitHub, sem arquivo no repo).
+3. Settings → Actions → General: permissões padrão do `GITHUB_TOKEN` = somente leitura; exigir aprovação para workflows de fork.
 
 ## 2. Cloudflare Pages
-1. Criar projeto Pages chamado `knmetabolic` (Direct Upload; o deploy vem do GitHub Actions).
-2. Criar API token com escopo mínimo: *Account → Cloudflare Pages → Edit*, restrito à conta e com expiração.
-3. Em GitHub → Settings → Secrets (de preferência no environment `production`): `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID`.
+1. Cloudflare → Workers & Pages → Create → **Connect to Git** → este repositório.
+2. Build command: `npm run build`; output directory: `dist`; production branch: `main`. Branches/PRs geram *previews* automaticamente.
+3. Nenhum token da Cloudflare fica no GitHub (nada a vazar). Variáveis de ambiente, se houver, só no painel da Cloudflare.
 4. Domínio próprio, HTTPS "Full (strict)", HSTS, regra de rate limiting e WAF gerenciado.
-5. Conferir após o deploy: `curl -sI https://<dominio> | grep -i -E "content-security|strict-transport"`.
-
-Sem os secrets, os workflows de deploy/preview **pulam** a publicação com um aviso (não falham).
+5. Em *Settings → Builds*, ative *Branch control* para só `main` ser produção. Conferir após o deploy: `curl -sI https://<dominio> | grep -i -E "content-security|strict-transport"`.
 
 ## 3. Supabase (somente quando o checklist de [lgpd.md](lgpd.md) estiver completo)
 1. Criar dois projetos: `knmetabolic-staging` e `knmetabolic-prod` (região conforme análise jurídica).

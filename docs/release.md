@@ -5,8 +5,8 @@
 - Atualizar `CACHE` em `sw.js` (ex.: `knmetabolicuti-v6`) em todo release que altere arquivos pré-cacheados.
 
 ## Fluxo
-1. PR com checklist (template) → CI + CodeQL verdes → review de Code Owner.
-2. Merge em `main` → `deploy.yml` aguarda aprovação do ambiente `production`.
+1. PR com checklist (template) → CI verde → review de Code Owner.
+2. Merge em `main` → Cloudflare Pages publica automaticamente (Git integration). Revise o preview do PR antes do merge.
 3. Pós-deploy: abrir o site, executar 3 cálculos de referência (IMC, FIB-4, SOFA) e conferir cabeçalhos de segurança.
 4. Criar tag/release (`git tag vX.Y.Z`) e registrar changelog.
 

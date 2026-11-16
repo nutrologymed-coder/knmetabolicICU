@@ -6,7 +6,8 @@
 > 3. Uma fase só é "concluída" quando todos os itens estão `[x]` **e** o *Gate* da fase passou. Atualize o quadro de status abaixo.
 > 4. Nunca marque `[x]` sem evidência verificável. Item que depende de decisão/credencial humana: marque `[!]` (bloqueado) e escreva quem decide.
 > 5. Antes de começar: `npm test && npm run build` deve passar. Se CI estiver vermelho, conserte primeiro.
-> 6. Proibido: dados reais de pacientes em código/testes/issues; segredos no repositório; ligar o banco ao front antes da Fase 5; marcar fórmula como `reviewed` sem 2 revisores clínicos.
+> 6. **Política de GitHub Actions: mínimo essencial.** Um único workflow (`ci.yml`, só em PR). Não adicione workflows/cron/matrizes sem ADR justificando o custo. Deploy/preview = Cloudflare Git integration.
+> 7. Proibido: dados reais de pacientes em código/testes/issues; segredos no repositório; ligar o banco ao front antes da Fase 5; marcar fórmula como `reviewed` sem 2 revisores clínicos.
 
 Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluído (com evidência) · `[!]` bloqueado por humano
 
@@ -69,10 +70,10 @@ Ordem recomendada de execução: **6 → 1 → 2 → 3 → 0 (decisões em paral
 | [ ] | Migrar `index.html` ao mesmo design system | PR |
 | [ ] | Idioma PT/EN compartilhado entre as páginas | PR |
 | [ ] | Acessibilidade WCAG AA (foco, contraste, `aria-live` no resultado, leitor de tela) | auditoria + PR |
-| [ ] | Testes E2E com Playwright no CI (cálculo, busca, favoritos, offline) | `tests/e2e/` |
+| [ ] | Testes E2E com Playwright (cálculo, busca, favoritos, offline), rodados localmente; só entram no CI se o custo for baixo | `tests/e2e/` |
 | [ ] | Aviso "nova versão disponível" do service worker (H6) | PR |
 | [ ] | Exportação PDF/CSV dos resultados das calculadoras | PR |
-| [ ] | Lighthouse (PWA/a11y) com orçamento mínimo no CI | workflow |
+| [ ] | Auditoria Lighthouse (PWA/a11y) executada localmente antes de releases | registro |
 
 **Gate 2:** E2E e a11y verdes no CI.
 
@@ -80,8 +81,8 @@ Ordem recomendada de execução: **6 → 1 → 2 → 3 → 0 (decisões em paral
 | | Item | Evidência |
 |---|---|---|
 | [x] | `_headers` (CSP estrita, HSTS, frame-ancestors none) + `dist/` só com arquivos públicos | PR #8 |
-| [x] | Workflows `preview.yml` e `deploy.yml` (pulam sem secrets) | PR #8 |
-| [!] | Criar projeto Pages `knmetabolic`; token com escopo mínimo; secrets no GitHub (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`) | `docs/setup-cloud.md` §2 |
+| [x] | Política de Actions mínimo: deploy/preview via Cloudflare Git integration, sem workflows nem tokens no GitHub | `docs/setup-cloud.md` §2 |
+| [!] | Conectar o repositório ao Cloudflare Pages (build `npm run build`, saída `dist`, produção só `main`) | `docs/setup-cloud.md` §2 |
 | [!] | Domínio próprio, HTTPS "Full (strict)", WAF gerenciado, rate limiting | dono |
 | [ ] | Conferir headers em produção (`curl -sI`) e registrar resultado | aqui |
 | [ ] | Infra como código (`wrangler.toml`/Terraform) para o que for configurável | PR |
@@ -94,7 +95,7 @@ Ordem recomendada de execução: **6 → 1 → 2 → 3 → 0 (decisões em paral
 |---|---|---|
 | [x] | Migração inicial: RLS forçada, grants mínimos, `calculations` imutável, `audit_log` append-only, eliminação LGPD | `supabase/migrations/` |
 | [x] | 16 testes pgTAP locais verdes | `scripts/test-db.sh` |
-| [ ] | pgTAP verde **no CI** | job `database` |
+| [ ] | pgTAP verde **no CI** (roda quando `supabase/` muda) | job `check` |
 | [!] | Criar projetos `staging` e `prod` separados; região conforme jurídico | `docs/setup-cloud.md` §3 |
 | [!] | Auth: confirmação de e-mail, senha ≥ 12, MFA TOTP, sem login anônimo | painel + `config.toml` |
 | [ ] | Validar o schema contra o **Supabase real** (`supabase db reset` + `supabase test db`), pois o CI usa um bootstrap simulado | evidência no PR |
@@ -122,12 +123,11 @@ Ordem recomendada de execução: **6 → 1 → 2 → 3 → 0 (decisões em paral
 ## Fase 6: CI/CD e supply chain
 | | Item | Evidência |
 |---|---|---|
-| [x] | CI (testes, build, guarda de segredos), CodeQL, Dependabot, previews, ações fixadas por SHA | PR #8 |
-| [~] | Job `database` verde no GitHub (runner ubuntu-24.04 + PG16 + pgTAP; runner TAP-aware após code review) | conferir `gh pr checks` |
-| [!] | Branch protection em `main` (PR, checks `test`/`database`/`analyze`, CODEOWNERS, histórico linear, sem force-push) | `docs/setup-cloud.md` §1 |
-| [!] | Habilitar secret scanning + push protection e Dependabot alerts | Settings |
-| [!] | Ambiente `production` com *required reviewers* | Settings |
-| [ ] | Gerar SBOM e anexar a releases; tags assinadas | workflow |
+| [x] | **Único** workflow `ci.yml` (só PR: testes, build, guarda de segredos, pgTAP condicional), ações fixadas por SHA | PR #8 |
+| [~] | CI verde no GitHub (ubuntu-24.04; pgTAP só roda se `supabase/` mudar) | conferir `gh pr checks` |
+| [!] | Branch protection em `main` (PR, check `check`, CODEOWNERS, histórico linear, sem force-push) | `docs/setup-cloud.md` §1 |
+| [!] | Habilitar secret scanning, push protection, Dependabot alerts e (opcional) CodeQL default setup, tudo sem workflows | Settings |
+| [ ] | Tags assinadas; SBOM gerado manualmente/local só em releases (evitar workflow extra) | release |
 | [ ] | Atualizar Pico.css vendorizado de forma controlada (checksum registrado) | doc |
 
 **Gate 6:** `main` protegida e todos os checks obrigatórios verdes.
