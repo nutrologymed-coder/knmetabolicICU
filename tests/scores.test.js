@@ -25,4 +25,13 @@ assert.strictEqual(val("mnutric", { age: 76, apache: 20, sofa: 10, comorb: 2, da
 assert.strictEqual(val("sofa", { pao2: 80, fio2: 100, vent: true, plt: 90, bili: 2.5, cv: "3", gcs: 12, cr: 2.1 }), 4 + 2 + 2 + 3 + 2 + 2, "SOFA");
 assert.strictEqual(S.byId("bmi").calc({ wt: 70 }).error, "ht", "missing field reported");
 
+S.list.forEach((c) => {
+  assert(c.specialties.length && c.specialties.every((k) => S.specialties[k]), c.id + " specialties");
+  assert(c.conditions.length && c.conditions.every((k) => S.conditionGroups[k]), c.id + " conditions");
+  assert(c.related.every((id) => S.byId(id)), c.id + " related ids");
+});
+assert(S.search("figado").some((c) => c.id === "fib4"), "accent-insensitive tag search");
+assert(S.search("sepse").map((c) => c.id).includes("qsofa"), "condition search");
+assert.strictEqual(S.search("zzzz").length, 0);
+
 console.log("All score tests passed (" + S.list.length + " calculators registered)");

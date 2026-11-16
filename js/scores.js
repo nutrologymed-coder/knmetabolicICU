@@ -282,10 +282,62 @@
 
   const list = [bmi, idealWeight, bsa, weightLoss, targets, mnutric, homa, aniongap, corrCa, corrNa, osm, fwd, ckdepi, cg, fib4, apri, meld, pf, qsofa, sofa];
 
-  const groups = {
-    nutrition: L("Nutrição", "Nutrition"), metabolic: L("Metabólico / Eletrólitos", "Metabolic / Electrolytes"),
-    renal: L("Renal", "Renal"), hepatic: L("Hepático", "Hepatic"), icu: L("Terapia intensiva", "Critical care")
+  const specialties = {
+    nutrology: L("Nutrologia", "Nutrition medicine"), endocrinology: L("Endocrinologia", "Endocrinology"),
+    nephrology: L("Nefrologia", "Nephrology"), hepatology: L("Hepatologia", "Hepatology"),
+    intensive: L("Terapia intensiva", "Critical care"), pulmonology: L("Pneumologia", "Pulmonology"),
+    infectious: L("Infectologia", "Infectious diseases")
   };
 
-  return { list, groups, byId: (id) => list.find((c) => c.id === id) };
+  const conditionGroups = {
+    obesity: L("Obesidade e composição corporal", "Obesity & body composition"),
+    malnutrition: L("Desnutrição e terapia nutricional", "Malnutrition & nutrition therapy"),
+    diabetes: L("Diabetes e resistência insulínica", "Diabetes & insulin resistance"),
+    electrolytes: L("Distúrbios hidroeletrolíticos e ácido-base", "Fluid, electrolyte & acid-base disorders"),
+    kidney: L("Doença renal (DRC/IRA)", "Kidney disease (CKD/AKI)"),
+    liver: L("Doença hepática (DHGNA/cirrose)", "Liver disease (MASLD/cirrhosis)"),
+    sepsis: L("Sepse e disfunção orgânica", "Sepsis & organ dysfunction"),
+    ards: L("Insuficiência respiratória / SDRA", "Respiratory failure / ARDS")
+  };
+
+  // id -> [specialties, condition groups, search tags, related ids]
+  const META = {
+    bmi: [["nutrology", "endocrinology"], ["obesity"], "imc obesidade sobrepeso bmi", ["ibw", "bsa"]],
+    ibw: [["nutrology", "intensive"], ["obesity", "malnutrition"], "peso ideal devine ajustado", ["bmi", "targets"]],
+    bsa: [["nutrology", "intensive"], ["obesity"], "superficie corporal mosteller", ["bmi"]],
+    wtloss: [["nutrology"], ["malnutrition", "obesity"], "perda peso emagrecimento", ["mnutric", "bmi"]],
+    targets: [["nutrology", "intensive"], ["malnutrition"], "meta calorica proteica kcal proteina espen aspen", ["mnutric", "ibw"]],
+    mnutric: [["nutrology", "intensive"], ["malnutrition", "sepsis"], "nutric risco nutricional", ["targets", "sofa"]],
+    homa: [["endocrinology", "nutrology"], ["diabetes", "obesity"], "homa resistencia insulina diabetes", ["bmi"]],
+    ag: [["nephrology", "intensive"], ["electrolytes"], "anion gap acidose metabolica", ["osm", "nacorr"]],
+    ca: [["endocrinology", "nephrology"], ["electrolytes"], "calcio albumina hipercalcemia", ["ag"]],
+    nacorr: [["endocrinology", "intensive"], ["electrolytes", "diabetes"], "sodio glicemia hiponatremia hiperglicemia", ["osm", "fwd"]],
+    osm: [["nephrology", "intensive"], ["electrolytes", "diabetes"], "osmolaridade osmolalidade", ["nacorr", "ag"]],
+    fwd: [["nephrology", "intensive"], ["electrolytes"], "agua livre hipernatremia", ["nacorr", "osm"]],
+    ckdepi: [["nephrology"], ["kidney"], "tfg taxa filtracao glomerular creatinina drc", ["cg"]],
+    cg: [["nephrology"], ["kidney"], "clearance creatinina cockcroft gault ajuste dose", ["ckdepi"]],
+    fib4: [["hepatology", "endocrinology"], ["liver", "obesity"], "fibrose dhgna masld nafld figado", ["apri", "meld"]],
+    apri: [["hepatology"], ["liver"], "fibrose cirrose plaquetas", ["fib4"]],
+    meld: [["hepatology", "intensive"], ["liver"], "cirrose transplante hepatico meld na", ["fib4", "sofa"]],
+    pf: [["pulmonology", "intensive"], ["ards"], "pao2 fio2 sdra oxigenacao hipoxemia", ["sofa"]],
+    qsofa: [["infectious", "intensive"], ["sepsis"], "sepse triagem", ["sofa"]],
+    sofa: [["intensive", "infectious"], ["sepsis", "ards"], "sepse disfuncao organica", ["qsofa", "pf"]]
+  };
+  list.forEach((c) => {
+    const m = META[c.id];
+    c.specialties = m[0]; c.conditions = m[1]; c.tags = m[2]; c.related = m[3];
+  });
+
+  const strip = (x) => String(x).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  function search(q) {
+    const t = strip(q).split(/\s+/).filter(Boolean);
+    return list.filter((c) => {
+      const hay = strip([c.name.pt, c.name.en, c.id, c.tags,
+        c.specialties.map((k) => specialties[k].pt + " " + specialties[k].en).join(" "),
+        c.conditions.map((k) => conditionGroups[k].pt + " " + conditionGroups[k].en).join(" ")].join(" "));
+      return t.every((w) => hay.includes(w));
+    });
+  }
+
+  return { list, specialties, conditionGroups, byId: (id) => list.find((c) => c.id === id), search, strip };
 });
