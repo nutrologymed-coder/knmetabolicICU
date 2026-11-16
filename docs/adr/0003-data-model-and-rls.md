@@ -1,6 +1,6 @@
 # ADR 0003: Modelo de dados e RLS
 
-**Estado:** aceito. Implementação: `supabase/migrations/20261116000000_init_clinical_core.sql`. Testes: `supabase/tests/rls.test.sql` (14 asserções).
+**Estado:** aceito. Implementação: `supabase/migrations/20261116000000_init_clinical_core.sql`. Testes: `supabase/tests/rls.test.sql` (16 asserções).
 
 ## Regras
 - **RLS habilitada e forçada** em toda tabela de `public`; políticas por `auth.uid()`.

@@ -1,6 +1,6 @@
 -- pgTAP: RLS and immutability guarantees. Run: supabase test db
 begin;
-select plan(14);
+select plan(16);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'alice@example.test'),
@@ -37,6 +37,9 @@ set local role anon;
 select throws_ok($$select count(*) from public.calculations$$, '42501', null, 'anon has no access');
 
 reset role;
+select throws_ok($$truncate public.audit_log$$, 'P0001', 'audit_log is append-only', 'audit_log cannot be truncated');
+select throws_ok($$update public.audit_log set user_id = null$$, 'P0001', 'audit_log is append-only', 'audit rows cannot be anonymised while the account exists');
+
 -- LGPD erasure: deleting the account removes data and anonymises the audit trail
 delete from auth.users where id = '00000000-0000-0000-0000-00000000000a';
 select is((select count(*)::int from public.audit_log where user_id is not null), 0, 'audit rows anonymised after account deletion');

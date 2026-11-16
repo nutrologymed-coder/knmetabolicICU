@@ -81,6 +81,7 @@ create function public.audit_log_immutable() returns trigger
 language plpgsql as $$
 begin
   if tg_op = 'UPDATE' and old.user_id is not null and new.user_id is null
+     and not exists (select 1 from auth.users where id = old.user_id)
      and (new.id, new.action, new.entity, new.entity_id, new.at) is not distinct from (old.id, old.action, old.entity, old.entity_id, old.at) then
     return new;  -- LGPD erasure: anonymise only
   end if;
@@ -88,6 +89,15 @@ begin
 end $$;
 create trigger audit_log_no_change before update or delete on public.audit_log
   for each row execute function public.audit_log_immutable();
+
+-- Row triggers do not fire on TRUNCATE (and RLS does not apply to it): block bulk deletion explicitly.
+create function public.audit_log_no_truncate() returns trigger
+language plpgsql as $$
+begin
+  raise exception 'audit_log is append-only';
+end $$;
+create trigger audit_log_no_truncate before truncate on public.audit_log
+  for each statement execute function public.audit_log_no_truncate();
 
 -- LGPD erasure: when an account is deleted, anonymise its audit rows instead of keeping the identifier.
 create function public.anonymise_audit_on_user_delete() returns trigger

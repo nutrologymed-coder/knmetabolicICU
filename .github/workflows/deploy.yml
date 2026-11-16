@@ -11,6 +11,8 @@ concurrency:
 
 jobs:
   deploy:
+    # Manual runs must not publish a non-main ref as production.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     # Configure "production" in Settings > Environments with required reviewers (manual approval).
