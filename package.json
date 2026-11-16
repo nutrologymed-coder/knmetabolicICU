@@ -1,0 +1,13 @@
+{
+  "name": "knmetabolic-icu",
+  "version": "0.1.0",
+  "private": true,
+  "description": "KNmetabolicUTI: metabolic estimate and medical calculators (static PWA).",
+  "license": "UNLICENSED",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node tests/scores.test.js && node tests/registry.test.js && node tests/static.test.js",
+    "build": "node scripts/build.mjs",
+    "preview": "python3 -m http.server 8080 --directory dist"
+  }
+}

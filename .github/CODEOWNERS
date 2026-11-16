@@ -1,0 +1,7 @@
+# Clinical logic and data/security surfaces require owner review (enable "Require review from Code Owners").
+*                       @nutrologymed-coder
+/js/scores.js           @nutrologymed-coder
+/validation/            @nutrologymed-coder
+/supabase/              @nutrologymed-coder
+/.github/               @nutrologymed-coder
+/_headers               @nutrologymed-coder

@@ -1,0 +1,27 @@
+name: Preview (Cloudflare Pages)
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  preview:
+    # Skipped for fork PRs (no access to secrets).
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - run: npm test && npm run build
+      - name: Deploy preview
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then echo "::warning::Cloudflare secrets not set; skipping preview"; exit 0; fi
+          npx --yes wrangler@3 pages deploy dist --project-name=knmetabolic --branch="$BRANCH"
