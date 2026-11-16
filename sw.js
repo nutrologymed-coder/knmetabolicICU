@@ -1,15 +1,18 @@
 // Simple offline-first cache for GitHub Pages
-const CACHE = "knmetabolicuti-v2";
+const CACHE = "knmetabolicuti-v3";
 const ASSETS = [
   "./",
   "./index.html",
+  "./calculators.html",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
   "./js/translations.js",
   "./js/methods.js",
   "./js/export.js",
-  "./js/app.js"
+  "./js/app.js",
+  "./js/scores.js",
+  "./js/calculators.js"
 ];
 
 self.addEventListener("install", (event) => {
