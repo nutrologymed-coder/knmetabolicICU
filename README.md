@@ -6,4 +6,6 @@ Ferramenta de apoio: valide fórmulas/unidades nas fontes originais antes do uso
 
 Navegação: visões por Especialidade, A–Z, Doença/grupo e Favoritos; busca sem acento (nome, siglas, tags, doenças); recentes/favoritos em localStorage; link direto `calculators.html#fib4`. Metadados (`META`) ficam no fim de `js/scores.js`.
 
+Desenvolvimento: `npm test` (fórmulas, registro de validação, checagens estáticas/CSP), `npm run build` (gera `dist/`), `scripts/test-db.sh` (migrações + pgTAP). Documentação de arquitetura, segurança clínica, LGPD, deploy e runbooks em [`docs/`](docs/README.md); vulnerabilidades: [`SECURITY.md`](SECURITY.md).
+
 UI: usa [Pico.css v2.1.1](https://picocss.com) (MIT, vendorizado em `css/pico.min.css`, licença em `css/pico.LICENSE.md`) com tema escuro azul/dourado em `calculators.html`.

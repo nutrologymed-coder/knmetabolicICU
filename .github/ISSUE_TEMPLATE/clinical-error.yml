@@ -1,0 +1,23 @@
+name: Erro clínico em calculadora
+description: Resultado, fórmula, unidade ou interpretação possivelmente incorreta (NÃO inclua dados de pacientes)
+labels: [clinical-error, priority-high]
+body:
+  - type: markdown
+    attributes:
+      value: "Não inclua nome, CPF, prontuário ou qualquer dado identificável. Use valores fictícios que reproduzam o problema."
+  - type: input
+    id: calc
+    attributes: { label: Calculadora, placeholder: "ex.: MELD-Na" }
+    validations: { required: true }
+  - type: textarea
+    id: inputs
+    attributes: { label: Entradas fictícias que reproduzem o problema }
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes: { label: Resultado esperado e fonte (artigo/diretriz) }
+    validations: { required: true }
+  - type: textarea
+    id: actual
+    attributes: { label: Resultado obtido }
+    validations: { required: true }

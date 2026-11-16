@@ -1,0 +1,25 @@
+{
+  "_comment": "Clinical validation registry. status: pending_review | reviewed. A calculator may only be marked reviewed after two clinicians sign off (see docs/clinical-safety.md). Never mark reviewed without a real review.",
+  "calculators": {
+    "bmi": { "source": "WHO BMI classification", "status": "pending_review" },
+    "ibw": { "source": "Devine 1974 (ideal body weight); adjusted weight = IBW + 0.25 x (actual - IBW)", "status": "pending_review" },
+    "bsa": { "source": "Mosteller 1987", "status": "pending_review" },
+    "wtloss": { "source": "Blackburn 1977 / ASPEN-AND significant weight loss thresholds", "status": "pending_review" },
+    "targets": { "source": "ESPEN ICU 2019 / ASPEN-SCCM 2016 (user-configurable targets)", "status": "pending_review" },
+    "mnutric": { "source": "Heyland 2011 (modified, without IL-6)", "status": "pending_review" },
+    "homa": { "source": "Matthews 1985", "status": "pending_review" },
+    "ag": { "source": "Anion gap; albumin correction +2.5 per 1 g/dL (Figge 1998)", "status": "pending_review" },
+    "ca": { "source": "Payne 1973 corrected calcium", "status": "pending_review" },
+    "nacorr": { "source": "Katz 1973 (1.6 mEq/L per 100 mg/dL glucose)", "status": "pending_review" },
+    "osm": { "source": "Calculated serum osmolality 2Na + glucose/18 + BUN/2.8", "status": "pending_review" },
+    "fwd": { "source": "Free water deficit = TBW x (Na/140 - 1)", "status": "pending_review" },
+    "ckdepi": { "source": "Inker 2021 (CKD-EPI race-free)", "status": "pending_review" },
+    "cg": { "source": "Cockcroft & Gault 1976", "status": "pending_review" },
+    "fib4": { "source": "Sterling 2006; McPherson 2017 age-adjusted cut-off", "status": "pending_review" },
+    "apri": { "source": "Wai 2003", "status": "pending_review" },
+    "meld": { "source": "Kamath 2001; Kim 2008 (MELD-Na)", "status": "pending_review" },
+    "pf": { "source": "Berlin definition 2012", "status": "pending_review" },
+    "qsofa": { "source": "Sepsis-3, Singer 2016", "status": "pending_review" },
+    "sofa": { "source": "Vincent 1996", "status": "pending_review" }
+  }
+}
