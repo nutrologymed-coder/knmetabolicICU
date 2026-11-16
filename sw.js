@@ -1,9 +1,10 @@
 // Simple offline-first cache for GitHub Pages
-const CACHE = "knmetabolicuti-v4";
+const CACHE = "knmetabolicuti-v5";
 const ASSETS = [
   "./",
   "./index.html",
   "./calculators.html",
+  "./css/pico.min.css",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
