@@ -28,7 +28,7 @@
 
   function pill(c) {
     const b = document.createElement("button");
-    b.className = current && current.id === c.id ? "primary" : "ghost";
+    b.className = "chip" + (current && current.id === c.id ? "" : " outline secondary");
     b.textContent = tx(c.name);
     b.onclick = () => select(c.id);
     return b;
@@ -36,14 +36,13 @@
 
   function section(box, title, items, open) {
     const d = document.createElement("details");
+    d.className = "grp";
     d.open = open;
     const sm = document.createElement("summary");
-    sm.className = "card-title";
-    sm.style.cursor = "pointer";
-    sm.textContent = title + " (" + items.length + ")";
+        sm.textContent = title + " (" + items.length + ")";
     d.appendChild(sm);
     const wrap = document.createElement("div");
-    wrap.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px";
+    wrap.className = "chips";
     items.forEach((c) => wrap.appendChild(pill(c)));
     d.appendChild(wrap);
     box.appendChild(d);
@@ -54,11 +53,10 @@
     const box = $("list");
     box.innerHTML = "";
     const bar = document.createElement("div");
-    bar.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px";
+    bar.className = "chips";
     views.forEach(([id, pt, en]) => {
       const b = document.createElement("button");
-      b.className = view === id ? "primary" : "ghost";
-      b.style.cssText = "font-size:13px;padding:6px 12px";
+      b.className = "chip" + (view === id ? "" : " outline secondary");
       b.textContent = lang === "pt" ? pt : en;
       b.onclick = () => { view = id; renderList(); };
       bar.appendChild(b);
@@ -107,12 +105,11 @@
     $("result").innerHTML = "";
     if (!current) return;
     const title = document.createElement("div");
-    title.className = "card-title";
+    title.className = "title";
     title.textContent = tx(current.name);
     const star = document.createElement("button");
     const isFav = () => store.get("fav").includes(current.id);
-    star.className = "ghost";
-    star.style.cssText = "float:right;font-size:14px;padding:2px 10px";
+    star.className = "chip outline secondary star";
     star.textContent = isFav() ? "★" : "☆";
     star.title = T[lang].favToggle;
     star.onclick = () => {
@@ -124,7 +121,7 @@
     title.appendChild(star);
     f.appendChild(title);
     const grid = document.createElement("div");
-    grid.className = "row";
+    grid.className = "fields";
     current.fields.forEach((fd) => {
       const d = document.createElement("div");
       const lab = document.createElement("label");
@@ -154,11 +151,10 @@
     bar.className = "actions";
     bar.style.marginTop = "12px";
     const go = document.createElement("button");
-    go.className = "primary";
     go.textContent = T[lang].calc;
     go.onclick = run;
     const clr = document.createElement("button");
-    clr.className = "ghost";
+    clr.className = "outline secondary";
     clr.textContent = T[lang].clear;
     clr.onclick = renderForm;
     bar.append(go, clr);
@@ -172,12 +168,12 @@
     }
     if (current.related.length) {
       const rel = document.createElement("div");
-      rel.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center";
+      rel.className = "chips";
+      rel.style.marginTop = "1rem";
       rel.append(T[lang].related + " ");
       current.related.forEach((id) => {
         const c = SCORES.byId(id), b = document.createElement("button");
-        b.className = "ghost";
-        b.style.cssText = "font-size:12px;padding:4px 10px";
+        b.className = "chip outline secondary";
         b.textContent = tx(c.name);
         b.onclick = () => select(id);
         rel.appendChild(b);
@@ -202,9 +198,9 @@
     const out = current.calc(v);
     if (out.error) return show('<div class="small">' + T[lang].missing + "</div>");
     show(out.results.map((x) =>
-      '<div class="box" style="margin-top:10px"><div class="t">' + esc(tx(x.label)) + '</div><div class="v">' + esc(String(x.value)) +
+      '<div class="result-box"><article><div class="t">' + esc(tx(x.label)) + '</div><div class="v">' + esc(String(x.value)) +
       ' <span class="u">' + esc(x.unit) + "</span></div>" +
-      (x.note ? '<div class="small">' + esc(tx(x.note)) + "</div>" : "") + "</div>").join(""));
+      (x.note ? '<div class="small">' + esc(tx(x.note)) + "</div>" : "") + "</article></div>").join(""));
   }
 
   function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }

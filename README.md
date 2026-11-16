@@ -5,3 +5,5 @@ Fórmulas em `js/scores.js` (registro puro): testes com `node tests/scores.test.
 Ferramenta de apoio: valide fórmulas/unidades nas fontes originais antes do uso clínico.
 
 Navegação: visões por Especialidade, A–Z, Doença/grupo e Favoritos; busca sem acento (nome, siglas, tags, doenças); recentes/favoritos em localStorage; link direto `calculators.html#fib4`. Metadados (`META`) ficam no fim de `js/scores.js`.
+
+UI: usa [Pico.css v2.1.1](https://picocss.com) (MIT, vendorizado em `css/pico.min.css`, licença em `css/pico.LICENSE.md`) com tema escuro azul/dourado em `calculators.html`.

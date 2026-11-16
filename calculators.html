@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -7,95 +7,60 @@
   <title>Calculadoras e Scores</title>
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/pico.min.css">
   <style>
-    :root{
-      --bg:#0b1c2c;--card:rgba(255,255,255,.06);--border:rgba(255,255,255,.10);
-      --text:#ffffff;--muted:#cfcfcf;--gold:#d4af37;--ink:#0b1c2c;
-      --pill:rgba(212,175,55,.18);--pillb:rgba(212,175,55,.35);
+    :root[data-theme="dark"]{
+      --pico-background-color:#0b1c2c;--pico-card-background-color:rgba(255,255,255,.06);
+      --pico-card-sectioning-background-color:rgba(255,255,255,.04);
+      --pico-primary:#d4af37;--pico-primary-background:#d4af37;--pico-primary-border:#d4af37;
+      --pico-primary-hover:#e6c453;--pico-primary-hover-background:#e6c453;--pico-primary-hover-border:#e6c453;
+      --pico-primary-underline:rgba(212,175,55,.5);--pico-primary-inverse:#0b1c2c;
+      --pico-secondary:#cfcfcf;--pico-secondary-border:rgba(255,255,255,.25);
+      --pico-form-element-background-color:rgba(255,255,255,.92);--pico-form-element-color:#0b1c2c;
+      --pico-form-element-placeholder-color:#6b7785;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-      background:var(--bg);color:var(--text);
-      padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
-    }
-    .wrap{max-width:760px;margin:0 auto;padding:16px 0 28px}
-    header{display:flex;align-items:center;gap:12px;margin:10px 0 14px}
-    .logo{width:44px;height:44px;border-radius:12px;border:1px solid var(--pillb);
-          background:linear-gradient(180deg,rgba(212,175,55,.18),rgba(255,255,255,.02));
-          display:grid;place-items:center;font-weight:800;color:var(--gold);flex-shrink:0}
-    .header-text{flex:1}
-    h1{font-size:22px;margin:0;color:var(--gold)}
-    .subtitle{margin:0;color:var(--muted);font-size:13px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin:12px 0}
-    .card-title{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.03em;margin-bottom:10px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media(max-width:640px){.row{grid-template-columns:1fr}}
-    label{display:block;text-align:left;font-size:13px;color:var(--muted);margin:2px 0 6px}
-    input,select{
-      width:100%;padding:12px;font-size:16px;border-radius:12px;
-      border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.92);
-      color:#0b1c2c;outline:none;
-    }
-    .section{margin-top:12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.15)}
-    .section-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px}
-    .badge{
-      display:inline-block;font-size:10px;padding:1px 7px;border-radius:999px;
-      background:rgba(155,232,159,.15);border:1px solid rgba(155,232,159,.4);
-      color:#9be89f;margin-left:6px;vertical-align:middle;
-    }
-    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    button{appearance:none;border:none;border-radius:14px;padding:12px 16px;font-size:16px;cursor:pointer}
-    .primary{background:var(--gold);color:var(--ink);font-weight:700}
-    .ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
-    .lang-btn{
-      margin-left:auto;background:transparent;color:var(--muted);
-      border:1px solid var(--border);font-size:13px;padding:6px 12px;border-radius:999px;
-      cursor:pointer;
-    }
-    .pill{
-      display:inline-block;padding:2px 10px;border-radius:999px;
-      background:var(--pill);border:1px solid var(--pillb);color:var(--gold);
-      font-size:12px;margin-bottom:10px;
-    }
-    .result{line-height:1.6;font-size:16px;min-height:62px}
-    .kpi{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
-    @media(max-width:700px){.kpi{grid-template-columns:1fr}}
-    .box{border:1px solid var(--border);border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.04)}
-    .t{font-size:12px;color:var(--muted)}
-    .v{font-size:20px;font-weight:800;margin-top:4px}
-    .u{font-size:12px;color:var(--muted);margin-top:2px}
-    .small{font-size:12px;color:var(--muted);line-height:1.55}
-    .export-bar{display:none;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .export-bar button{font-size:13px;padding:8px 14px}
-    @media print{
-      .actions,.export-bar,.lang-btn{display:none!important}
-      body{background:#fff;color:#000;padding:0}
-      .card{border:1px solid #ccc;background:#fff}
-      .pill{background:#eee;border:1px solid #ccc;color:#333}
-    }
+    header.top{display:flex;align-items:center;gap:12px;padding:1rem 0 .5rem}
+    .logo{width:44px;height:44px;border-radius:12px;border:1px solid rgba(212,175,55,.35);
+      display:grid;place-items:center;font-weight:800;color:#d4af37;flex-shrink:0}
+    header.top h1{font-size:1.4rem;margin:0;color:#d4af37}
+    header.top p{margin:0;font-size:.85rem;color:#cfcfcf}
+    header.top .grow{flex:1}
+    .chip{padding:.35rem .8rem;font-size:.9rem;margin:0;width:auto}
+    .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+    details.grp summary,details.grp[open]>summary{font-weight:700;color:#d4af37;font-size:.9rem;margin-bottom:.5rem}
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem}
+    @media(max-width:640px){.fields{grid-template-columns:1fr}}
+    .result-box{margin-top:.75rem}
+    .result-box .t{font-size:.8rem;color:#cfcfcf}
+    .result-box .v{font-size:1.6rem;font-weight:800}
+    .result-box .u{font-size:.8rem;color:#cfcfcf;font-weight:400}
+    .small{font-size:.8rem;color:#cfcfcf}
+    .star{float:right}
+    .title{font-weight:700;color:#d4af37;margin-bottom:1rem}
+    .actions{display:flex;gap:.75rem;flex-wrap:wrap}
+    .actions button{width:auto;margin:0}
+    @media print{.chips,#search,.actions{display:none!important}}
   </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
+<main class="container">
+  <header class="top">
     <div class="logo">KN</div>
-    <div class="header-text">
+    <div class="grow">
       <h1 id="title">Calculadoras e Scores</h1>
-      <p class="subtitle" id="sub"></p>
+      <p id="sub"></p>
     </div>
-    <button class="lang-btn" id="langBtn">English</button>
+    <button class="chip outline secondary" id="langBtn">English</button>
   </header>
-  <a id="back" href="index.html" class="small" style="color:var(--gold)">← Estimativa metabólica</a>
-  <div class="card">
+  <a id="back" href="index.html" class="small">← Estimativa metabólica</a>
+  <article>
     <input id="search" type="search" />
-    <div id="list" style="margin-top:12px"></div>
-  </div>
-  <div class="card" id="form"></div>
+    <div id="list"></div>
+  </article>
+  <article id="form"></article>
   <div id="result"></div>
   <p class="small" id="disclaimer"></p>
-</div>
+</main>
 <script src="js/scores.js"></script>
 <script src="js/calculators.js"></script>
 </body>
